@@ -64,8 +64,8 @@ export const Navbar = () => {
           <Link
             href="/shop"
             className={`group h-12 px-4 rounded-full border flex items-center justify-center transition-all duration-500 hover:scale-105 ${isShopActive
-                ? "border-[#7A2E3A]/30 bg-[#7A2E3A]/[0.04] text-[#7A2E3A]"
-                : "border-[#2D211D]/10 bg-white/70 backdrop-blur-xl text-[#2D211D] hover:border-[#2D211D]/30"
+              ? "border-[#7A2E3A]/30 bg-[#7A2E3A]/[0.04] text-[#7A2E3A]"
+              : "border-[#2D211D]/10 bg-white/70 backdrop-blur-xl text-[#2D211D] hover:border-[#2D211D]/30"
               }`}
           >
             <Compass size={14} strokeWidth={1.5} className="flex-shrink-0" />
@@ -77,8 +77,8 @@ export const Navbar = () => {
             <Link
               href="/admin"
               className={`group h-12 px-4 rounded-full border flex items-center justify-center transition-all duration-500 hover:scale-105 ${isAdminActive
-                  ? "border-[#7A2E3A]/40 bg-[#7A2E3A]/[0.06] text-[#7A2E3A]"
-                  : "border-[#2D211D]/10 bg-white/70 backdrop-blur-xl text-[#2D211D] hover:border-[#2D211D]/30"
+                ? "border-[#7A2E3A]/40 bg-[#7A2E3A]/[0.06] text-[#7A2E3A]"
+                : "border-[#2D211D]/10 bg-white/70 backdrop-blur-xl text-[#2D211D] hover:border-[#2D211D]/30"
                 }`}
             >
               <Layers size={14} strokeWidth={1.5} className="flex-shrink-0" />
@@ -92,8 +92,8 @@ export const Navbar = () => {
           <Link href="/" className="block relative group">
             <div
               className={`relative transition-all duration-700 ${isAdminPage
-                  ? "h-9 w-28 md:h-12 md:w-36"
-                  : "h-12 w-44 md:h-16 md:w-64"
+                ? "h-9 w-28 md:h-12 md:w-36"
+                : "h-12 w-44 md:h-16 md:w-64"
                 }`}
             >
               <Image
@@ -115,8 +115,8 @@ export const Navbar = () => {
             <Link
               href="/admin/orders"
               className={`group h-12 px-4 rounded-full border flex items-center justify-center transition-all duration-500 hover:scale-105 ${isOrdersActive
-                  ? "border-[#7A2E3A]/30 bg-[#7A2E3A]/[0.04] text-[#7A2E3A]"
-                  : "border-[#2D211D]/10 bg-white/70 backdrop-blur-xl text-[#2D211D] hover:border-[#2D211D]/30"
+                ? "border-[#7A2E3A]/30 bg-[#7A2E3A]/[0.04] text-[#7A2E3A]"
+                : "border-[#2D211D]/10 bg-white/70 backdrop-blur-xl text-[#2D211D] hover:border-[#2D211D]/30"
                 }`}
             >
               <ShoppingBag size={14} strokeWidth={1.5} className="flex-shrink-0" />
@@ -128,8 +128,8 @@ export const Navbar = () => {
           <Link
             href={!user ? "/login" : isAdmin ? "/admin/dashboard" : "/account"}
             className={`group h-12 px-4 rounded-full border flex items-center justify-center transition-all duration-500 hover:scale-105 ${(isAdmin && isDashboardActive) || (!isAdmin && isAccountActive)
-                ? "border-[#7A2E3A]/30 bg-[#7A2E3A]/[0.04] text-[#7A2E3A]"
-                : "border-[#2D211D]/10 bg-white/70 backdrop-blur-xl text-[#2D211D] hover:border-[#2D211D]/30"
+              ? "border-[#7A2E3A]/30 bg-[#7A2E3A]/[0.04] text-[#7A2E3A]"
+              : "border-[#2D211D]/10 bg-white/70 backdrop-blur-xl text-[#2D211D] hover:border-[#2D211D]/30"
               }`}
           >
             <User size={14} strokeWidth={1.5} className="flex-shrink-0" />
@@ -143,8 +143,8 @@ export const Navbar = () => {
             <Link
               href="/admin/settings"
               className={`h-12 w-12 rounded-full border flex items-center justify-center transition-all duration-500 hover:scale-105 ${isSettingsActive
-                  ? "border-[#7A2E3A]/30 bg-[#7A2E3A]/[0.04] text-[#7A2E3A]"
-                  : "border-[#2D211D]/10 bg-white/70 backdrop-blur-xl text-[#2D211D] hover:border-[#2D211D]/30"
+                ? "border-[#7A2E3A]/30 bg-[#7A2E3A]/[0.04] text-[#7A2E3A]"
+                : "border-[#2D211D]/10 bg-white/70 backdrop-blur-xl text-[#2D211D] hover:border-[#2D211D]/30"
                 }`}
             >
               <SlidersHorizontal size={14} strokeWidth={1.5} />
@@ -157,15 +157,16 @@ export const Navbar = () => {
               {wishlistEnabled && (
                 <Link
                   href="/wishlist"
-                  className={`group h-12 px-4 rounded-full border flex items-center justify-center transition-all duration-500 hover:scale-105 ${isWishlistActive
+                  className={`group relative h-12 px-4 rounded-full border flex items-center justify-center transition-all duration-500 hover:scale-105 ${isWishlistActive
                       ? "border-[#7A2E3A]/30 bg-[#7A2E3A]/[0.04] text-[#7A2E3A]"
                       : "border-[#2D211D]/10 bg-white/70 backdrop-blur-xl text-[#2D211D] hover:border-[#2D211D]/30"
                     }`}
                 >
                   <Heart size={14} strokeWidth={1.5} />
                   <span className={textRevealStyle}>Wishlist</span>
+
                   {isWishlistReady && totalWishlistItems > 0 && (
-                    <span className="absolute -top-1 -right-1 h-4 min-w-4 rounded-full bg-[#7A2E3A] text-white text-[8px] font-semibold flex items-center justify-center px-1">
+                    <span className="absolute -top-1.5 -right-1.5 h-4 min-w-4 rounded-full bg-[#7A2E3A] text-white text-[8px] font-semibold flex items-center justify-center px-1 z-10 shadow-sm">
                       {totalWishlistItems}
                     </span>
                   )}
