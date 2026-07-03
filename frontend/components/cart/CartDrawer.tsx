@@ -10,7 +10,6 @@ import { useStoreSettings } from "@/context/StoreSettingsContext";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-useEffect
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -29,6 +28,15 @@ export function CartDrawer({
     totalPrice,
     clearCart,
   } = useCart();
+
+  const safeCart = cart.filter(
+  (item) =>
+    item &&
+    item.product &&
+    item.product._id &&
+    item.product.price !== undefined &&
+    item.quantity > 0
+);
 
   const router = useRouter();
 
@@ -193,7 +201,7 @@ export function CartDrawer({
               </div>
 
               {/* EMPTY STATE */}
-              {cart.length === 0 && (
+              {safeCart.length === 0 && (
 
                 <div
                   className="
@@ -364,7 +372,7 @@ export function CartDrawer({
               )}
 
               {/* CART ITEMS */}
-              {cart.length > 0 && (
+              {safeCart.length > 0 && (
 
                 <>
 
@@ -383,7 +391,7 @@ export function CartDrawer({
                     "
                   >
 
-                    {cart.map((item) => (
+                    {safeCart.map((item) => (
 
                       <CartItem
                         key={item.product._id}

@@ -68,20 +68,25 @@ export const CartProvider = ({
 
       const response = await getCart();
 
-      if (
-        response?.success &&
-        response.data?.items
-      ) {
-        const mappedCart =
-          response.data.items.map((item: any) => ({
-            product: item.productId,
-            quantity: item.quantity,
-          }));
+      if (response?.success && response.data?.items) {
+  const mappedCart = response.data.items
+    .map((item: any) => ({
+      product: item.productId,
+      quantity: item.quantity,
+    }))
+    .filter(
+      (item: any) =>
+        item &&
+        item.product &&
+        item.product._id &&
+        item.product.price !== undefined &&
+        item.quantity > 0
+    );
 
-        setCart(mappedCart);
-      } else {
-        setCart([]);
-      }
+  setCart(mappedCart);
+} else {
+  setCart([]);
+}
     } catch (error) {
       console.error(
         "Failed to load cart:",
@@ -211,17 +216,25 @@ export const CartProvider = ({
     }
   };
 
-  const totalPrice = cart.reduce(
-    (total, item) =>
-      total +
-      Number(item.product.price) * item.quantity,
-    0
-  );
+ const safeCart = cart.filter(
+  (item) =>
+    item &&
+    item.product &&
+    item.product._id &&
+    item.product.price !== undefined &&
+    item.quantity > 0
+);
 
-  const totalItems = cart.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
+const totalPrice = safeCart.reduce(
+  (total, item) =>
+    total + Number(item.product.price || 0) * item.quantity,
+  0
+);
+
+const totalItems = safeCart.reduce(
+  (total, item) => total + item.quantity,
+  0
+);
 
   return (
     <CartContext.Provider
