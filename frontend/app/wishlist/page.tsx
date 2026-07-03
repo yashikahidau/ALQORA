@@ -20,15 +20,23 @@ export default function WishlistPage() {
     return null;
   }
 
+  // IMPORTANT: filter out broken/null wishlist entries
+  const validWishlist = wishlist.filter(
+    (item) =>
+      item &&
+      item.product &&
+      item.product._id &&
+      item.product.name &&
+      item.product.image_link
+  );
+
   return (
     <ProtectedRoute>
       <main className="relative min-h-screen bg-[#F8F1EB] text-[#1A110E] antialiased selection:bg-[#7A2E3A]/10 selection:text-[#7A2E3A]">
-        {/* ULTRA-SOFT AMBIENT LIGHTING OVERLAYS */}
         <div className="absolute top-0 right-0 h-[600px] w-[600px] rounded-full bg-[#7A2E3A]/[0.02] blur-[150px] pointer-events-none" />
         <div className="absolute top-[20%] left-0 h-[500px] w-[500px] rounded-full bg-[#1A110E]/[0.01] blur-[130px] pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto pt-32 pb-36 px-6 sm:px-8 z-10">
-          {/* ELEGANT BACK NAVIGATION */}
           <Link
             href="/shop"
             className="group inline-flex items-center gap-4 text-[10px] font-medium uppercase tracking-[0.4em] text-[#1A110E]/60 hover:text-[#7A2E3A] transition-all duration-500 mb-12"
@@ -44,7 +52,6 @@ export default function WishlistPage() {
             </span>
           </Link>
 
-          {/* EDITORIAL HEADLINE MATRIX */}
           <div className="border-b border-[#1A110E]/5 pb-12 mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-8">
             <div className="space-y-3 max-w-xl">
               <span className="text-[10px] font-semibold tracking-[0.5em] text-[#7A2E3A] uppercase block">
@@ -63,7 +70,7 @@ export default function WishlistPage() {
           </div>
 
           {/* EMPTY STATE */}
-          {wishlist.length === 0 && (
+          {validWishlist.length === 0 && (
             <div className="min-h-[40vh] flex flex-col items-center justify-center text-center max-w-md mx-auto py-16">
               <div className="w-[1px] h-16 bg-gradient-to-b from-[#7A2E3A] to-transparent mb-6" />
               <h2 className="text-xl font-serif font-light tracking-wide text-[#1A110E]">
@@ -81,16 +88,15 @@ export default function WishlistPage() {
             </div>
           )}
 
-          {/* COMPACT & BALANCED GRID DESIGN */}
-          {wishlist.length > 0 && (
+          {/* GRID */}
+          {validWishlist.length > 0 && (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-16 gap-y-16">
-                {wishlist.map((item) => (
+                {validWishlist.map((item) => (
                   <div
                     key={item.product._id}
                     className="group flex flex-col relative bg-transparent"
                   >
-                    {/* PRODUCT CARD IMAGE FRAME */}
                     <div className="relative aspect-[3/4] w-full bg-[#EDE0D8] rounded-3xl overflow-hidden transition-all duration-700 ease-out group-hover:shadow-[0_15px_40px_rgba(26,17,14,0.03)]">
                       <Link
                         href={`/product/${item.product._id}`}
@@ -106,7 +112,6 @@ export default function WishlistPage() {
                         />
                       </Link>
 
-                      {/* TRASH REMOVE BUTTON */}
                       <button
                         onClick={() => removeFromWishlist(item.product._id)}
                         className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-md border border-[#1A110E]/5 flex items-center justify-center text-[#1A110E]/60 hover:bg-[#7A2E3A] hover:text-white transition-all duration-500 z-10"
@@ -116,14 +121,13 @@ export default function WishlistPage() {
                       </button>
                     </div>
 
-                    {/* METADATA INFO BLOCK */}
                     <div className="mt-6 flex flex-col flex-grow">
                       <div className="flex items-center justify-between gap-4 border-b border-[#1A110E]/5 pb-2">
                         <span className="text-[9px] uppercase tracking-[0.4em] font-semibold text-[#7A2E3A]">
                           {item.product.product_type || "Luxury Formula"}
                         </span>
                         <p className="text-xs font-light text-[#1A110E]/80 tracking-wide">
-                          ₹{Number(item.product.price).toLocaleString("en-IN", {
+                          ₹{Number(item.product.price || 0).toLocaleString("en-IN", {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}
@@ -136,7 +140,6 @@ export default function WishlistPage() {
                         </Link>
                       </h3>
 
-                      {/* STOCK SIGNALS */}
                       <div className="mt-2">
                         {item.product.stock > 10 ? (
                           <p className="text-emerald-700 text-[10px] uppercase tracking-[0.15em] font-medium">
@@ -154,7 +157,6 @@ export default function WishlistPage() {
                       </div>
                     </div>
 
-                    {/* ACTION LINKS */}
                     <div className="grid grid-cols-2 gap-[1px] bg-[#1A110E]/10 border border-[#1A110E]/10 mt-6 group-hover:border-[#7A2E3A]/30 transition-colors duration-500">
                       <Link
                         href={`/product/${item.product._id}`}
@@ -164,16 +166,17 @@ export default function WishlistPage() {
                       </Link>
 
                       <button
-                        disabled={item.product.stock <= 0}
+                        disabled={(item.product.stock || 0) <= 0}
                         onClick={async () => {
-                          if (item.product.stock <= 0) return;
+                          if ((item.product.stock || 0) <= 0) return;
                           await addToCart(item.product);
                           router.push("/checkout");
                         }}
-                        className={`h-11 text-[10px] font-medium uppercase tracking-[0.25em] flex items-center justify-center gap-2 transition-all duration-500 ${item.product.stock > 0
+                        className={`h-11 text-[10px] font-medium uppercase tracking-[0.25em] flex items-center justify-center gap-2 transition-all duration-500 ${
+                          item.product.stock > 0
                             ? "bg-[#1A110E] hover:bg-[#7A2E3A] text-white"
                             : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          }`}
+                        }`}
                       >
                         {item.product.stock > 0 && (
                           <Plus className="w-3 h-3 stroke-[1.5]" />
@@ -185,7 +188,6 @@ export default function WishlistPage() {
                 ))}
               </div>
 
-              {/* FOOTER ACTIONS */}
               <div className="mt-32 pt-8 border-t border-[#1A110E]/5 flex justify-center">
                 <button
                   onClick={clearWishlist}
