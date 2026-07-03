@@ -1,0 +1,63 @@
+"use client";
+
+import { useAuth } from "@/context/AuthContext";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect } from "react";
+
+export function ProtectedRoute({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+
+  const {
+    user,
+    isLoading,
+  } = useAuth();
+
+  const router = useRouter();
+
+  const pathname =
+    usePathname();
+
+  useEffect(() => {
+
+    if (
+      !isLoading &&
+      !user
+    ) {
+
+      router.push(
+        `/login?redirect=${pathname}`
+      );
+
+    }
+
+  }, [
+    user,
+    isLoading,
+    pathname,
+    router,
+  ]);
+
+  if (isLoading) {
+
+    return (
+      <div
+        className="
+          min-h-screen
+          flex
+          items-center
+          justify-center
+          bg-[#F8F1EB]
+        "
+      >
+        Loading...
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  return <>{children}</>;
+}
