@@ -426,51 +426,64 @@ export default function OrdersPage() {
 
                 {/* 2. CARD CENTRAL PRODUCT ARCHIVE */}
                 <div className="px-6 py-2 sm:px-8 divide-y divide-[#E4D3C8]/40">
-                  {order.products && order.products.map((product: any, index: number) => (
-                    <div
-                      key={product.productId || index}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-6"
-                    >
-                      {/* Product Left Cluster details */}
-                      <div className="flex items-center gap-4 sm:gap-5">
-                        {/* Impeccable Border Image Wrapper Container */}
-                        <div className="relative h-20 w-20 rounded-xl overflow-hidden bg-[#F5F1ED] border border-[#E4D3C8]/60 shrink-0 shadow-inner">
-                          {product.image_link ? (
-                            <Image
-                              src={product.image_link}
-                              alt={product.name || "Product"}
-                              fill
-                              className="object-cover p-0.5 transition-transform duration-500 group-hover:scale-102"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-[#A17F72]/40 bg-[#F5F1ED]">
-                              <Box size={20} strokeWidth={1} />
-                            </div>
-                          )}
-                        </div>
+                  {order.products &&
+  order.products.map((product: any, index: number) => {
+    const productId =
+      typeof product.productId === "string"
+        ? product.productId
+        : product.productId?._id || "";
 
-                        <div className="space-y-1">
-                          <h4 className="text-[#2D211D] text-[17px] font-serif font-semibold tracking-tight font-[family:var(--font-cormorant)] leading-tight">
-                            {product.name || "Atelier Core Lineup Unit"}
-                          </h4>
-                          {/* Richer Color Weighting for Sub-labels */}
-                          <p className="text-[11px] uppercase tracking-[0.15em] text-[#594943] font-bold font-mono">
-                            QTY: {product.quantity || 1} <span className="mx-2 text-[#D9C4B7] font-normal">•</span> ₹{Number(product.price || 0).toLocaleString("en-IN")} each
-                          </p>
-                        </div>
-                      </div>
+    const uniqueKey =
+      `${order._id}-${productId || product.name || "product"}-${index}`;
 
-                      {/* Product Row Total pricing calculations */}
-                      <div className="sm:text-right pl-24 sm:pl-0">
-                        <span className="text-[#2D211D] font-bold text-base font-mono tracking-tight">
-                          ₹{(
-                            Number(product.price || 0) *
-                            (product.quantity || 1)
-                          ).toLocaleString("en-IN")}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+    return (
+      <div
+        key={uniqueKey}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-6"
+      >
+        {/* Product Left Cluster details */}
+        <div className="flex items-center gap-4 sm:gap-5">
+          <div className="relative h-20 w-20 rounded-xl overflow-hidden bg-[#F5F1ED] border border-[#E4D3C8]/60 shrink-0 shadow-inner">
+            {product.image_link ? (
+              <Image
+                src={product.image_link}
+                alt={product.name || "Product"}
+                fill
+                sizes="80px"
+                className="object-cover p-0.5 transition-transform duration-500 group-hover:scale-102"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-[#A17F72]/40 bg-[#F5F1ED]">
+                <Box size={20} strokeWidth={1} />
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <h4 className="text-[#2D211D] text-[17px] font-serif font-semibold tracking-tight font-[family:var(--font-cormorant)] leading-tight">
+              {product.name || "Atelier Core Lineup Unit"}
+            </h4>
+
+            <p className="text-[11px] uppercase tracking-[0.15em] text-[#594943] font-bold font-mono">
+              QTY: {product.quantity || 1}{" "}
+              <span className="mx-2 text-[#D9C4B7] font-normal">•</span> ₹
+              {Number(product.price || 0).toLocaleString("en-IN")} each
+            </p>
+          </div>
+        </div>
+
+        <div className="sm:text-right pl-24 sm:pl-0">
+          <span className="text-[#2D211D] font-bold text-base font-mono tracking-tight">
+            ₹
+            {(
+              Number(product.price || 0) *
+              (product.quantity || 1)
+            ).toLocaleString("en-IN")}
+          </span>
+        </div>
+      </div>
+    );
+  })}
                 </div>
 
                 {/* 3. LEDGER COMPONENT FOOTER TOTAL CLOSING */}

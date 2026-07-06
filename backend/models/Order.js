@@ -1,5 +1,41 @@
 const mongoose = require("mongoose");
 
+const orderProductSchema = new mongoose.Schema(
+  {
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    image_link: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    price: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+      default: 1,
+    },
+  },
+  { _id: false }
+);
+
 const orderSchema = new mongoose.Schema(
   {
     userId: {
@@ -8,40 +44,16 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
-    products: [
-      {
-        productId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-          required: true,
+    products: {
+      type: [orderProductSchema],
+      required: true,
+      validate: {
+        validator: function (value) {
+          return Array.isArray(value) && value.length > 0;
         },
-
-        name: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-
-        image_link: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-
-        price: {
-          type: Number,
-          required: true,
-          min: 0,
-        },
-
-        quantity: {
-          type: Number,
-          required: true,
-          min: 1,
-          default: 1,
-        },
+        message: "Order must contain at least one product",
       },
-    ],
+    },
 
     totalAmount: {
       type: Number,
@@ -66,41 +78,44 @@ const orderSchema = new mongoose.Schema(
     shippingAddress: {
       fullName: {
         type: String,
+        required: true,
         trim: true,
       },
       phone: {
         type: String,
+        required: true,
         trim: true,
       },
       address: {
         type: String,
+        required: true,
         trim: true,
       },
     },
 
     paymentStatus: {
       type: String,
-      enum: [
-        "Pending",
-        "Paid",
-        "Failed",
-      ],
+      enum: ["Pending", "Paid", "Failed"],
       default: "Pending",
     },
 
     paymentMethod: {
       type: String,
+      enum: ["cod", "razorpay"],
+      required: true,
       trim: true,
     },
 
     razorpayPaymentId: {
       type: String,
       trim: true,
+      default: null,
     },
 
     razorpayOrderId: {
       type: String,
       trim: true,
+      default: null,
     },
   },
   {
@@ -108,7 +123,4 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model(
-  "Order",
-  orderSchema
-);
+module.exports = mongoose.model("Order", orderSchema);

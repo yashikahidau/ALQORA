@@ -18,7 +18,11 @@ export default function Home() {
 
   const [isReady, setIsReady] = useState(false);
   const [showToast, setShowToast] = useState(false);
+
+  // IMPORTANT:
+  // don't assume desktop first. wait until device size is known.
   const [isMobile, setIsMobile] = useState(false);
+  const [deviceReady, setDeviceReady] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const toastRef = useRef<HTMLDivElement>(null);
@@ -29,6 +33,7 @@ export default function Home() {
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
+      setDeviceReady(true);
     };
 
     checkMobile();
@@ -63,12 +68,16 @@ export default function Home() {
   // MAIN PAGE ANIMATION
   // =========================
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !deviceReady) return;
 
-    // kill old triggers before rebuilding on resize / mobile switch
+    // kill old triggers before rebuilding
     ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
 
-    const ctx = gsap.context(() => {
+    // -----------------------------
+    // 1) HERO / CATEGORY / DESKTOP TEXT STACK
+    // scoped only to containerRef
+    // -----------------------------
+    const heroCtx = gsap.context(() => {
       setIsReady(true);
 
       const tl = gsap.timeline({
@@ -83,9 +92,7 @@ export default function Home() {
         },
       });
 
-      // =========================
       // STAGE 1 — HERO
-      // =========================
       tl.to(".alqora-text", {
         scale: isMobile ? 1.55 : 2.2,
         opacity: 1,
@@ -102,9 +109,7 @@ export default function Home() {
         0
       );
 
-      // =========================
       // STAGE 2 — CATEGORY
-      // =========================
       tl.to(".category-block", {
         y: isMobile ? "-100vh" : "-125vh",
         duration: 3,
@@ -119,9 +124,7 @@ export default function Home() {
         "<"
       );
 
-      // =========================
-      // STAGE 3 — DESKTOP ONLY TEXT REVEAL
-      // =========================
+      // STAGE 3 — DESKTOP ONLY TEXT REVEAL IN PINNED STACK
       if (!isMobile) {
         tl.to(".text-reveal-block", {
           y: "-100vh",
@@ -143,102 +146,134 @@ export default function Home() {
           "-=1.2"
         );
       }
-
-      // =========================
-      // DESKTOP ONLY EDITORIAL + FOOTER ANIMATIONS
-      // IMPORTANT:
-      // These are what were causing disappearing heading/footer on mobile.
-      // So they must not run on mobile.
-      // =========================
-      if (!isMobile) {
-        if (document.querySelector(".editorial-card")) {
-          gsap.from(".editorial-card", {
-            scrollTrigger: {
-              trigger: ".editorial-block",
-              start: "top 75%",
-              invalidateOnRefresh: true,
-            },
-            y: 120,
-            opacity: 0,
-            duration: 1.4,
-            stagger: 0.2,
-            ease: "power3.out",
-          });
-        }
-
-        if (document.querySelector(".editorial-heading")) {
-          gsap.from(".editorial-heading", {
-            scrollTrigger: {
-              trigger: ".editorial-heading",
-              start: "top 85%",
-              invalidateOnRefresh: true,
-            },
-            y: 80,
-            opacity: 0,
-            duration: 1.2,
-            ease: "power3.out",
-          });
-        }
-
-        if (document.querySelector(".footer-cta")) {
-          gsap.from(".footer-cta", {
-            scrollTrigger: {
-              trigger: ".footer-cta",
-              start: "top 80%",
-              invalidateOnRefresh: true,
-            },
-            scale: 0.92,
-            opacity: 0,
-            duration: 1.5,
-            ease: "power3.out",
-          });
-        }
-
-        if (document.querySelector(".footer-column")) {
-          gsap.from(".footer-column", {
-            scrollTrigger: {
-              trigger: ".footer-columns",
-              start: "top 85%",
-              invalidateOnRefresh: true,
-            },
-            y: 50,
-            opacity: 0,
-            stagger: 0.12,
-            duration: 1,
-            ease: "power3.out",
-          });
-        }
-
-        if (document.querySelector(".footer-brand-wrapper")) {
-          gsap.fromTo(
-            ".footer-brand-wrapper",
-            { scale: 0.9, opacity: 0.05 },
-            {
-              scale: 1,
-              opacity: 1,
-              scrollTrigger: {
-                trigger: ".footer-brand-wrapper",
-                start: "top bottom",
-                end: "center center",
-                scrub: true,
-                invalidateOnRefresh: true,
-              },
-            }
-          );
-        }
-      }
-
-      // refresh after layout settles
-      setTimeout(() => {
-        ScrollTrigger.refresh();
-      }, 200);
     }, containerRef);
 
+    // -----------------------------
+    // 2) MOBILE RESET
+    // very important:
+    // if mobile, force editorial/footer elements visible and clear
+    // any stale inline GSAP styles from previous desktop setup.
+    // -----------------------------
+    if (isMobile) {
+      gsap.set(
+        [
+          ".editorial-card",
+          ".editorial-heading",
+          ".footer-cta",
+          ".footer-column",
+          ".footer-brand-wrapper",
+        ],
+        {
+          clearProps: "all",
+          opacity: 1,
+          y: 0,
+          x: 0,
+          scale: 1,
+        }
+      );
+    }
+
+    // -----------------------------
+    // 3) EDITORIAL + FOOTER ANIMS
+    // DESKTOP ONLY
+    // -----------------------------
+    let editorialTween: gsap.core.Tween | null = null;
+    let editorialHeadingTween: gsap.core.Tween | null = null;
+    let footerCtaTween: gsap.core.Tween | null = null;
+    let footerColumnsTween: gsap.core.Tween | null = null;
+    let footerBrandTween: gsap.core.Tween | null = null;
+
+    if (!isMobile) {
+      if (document.querySelector(".editorial-card")) {
+        editorialTween = gsap.from(".editorial-card", {
+          scrollTrigger: {
+            trigger: ".editorial-block",
+            start: "top 75%",
+            invalidateOnRefresh: true,
+          },
+          y: 120,
+          opacity: 0,
+          duration: 1.4,
+          stagger: 0.2,
+          ease: "power3.out",
+        });
+      }
+
+      if (document.querySelector(".editorial-heading")) {
+        editorialHeadingTween = gsap.from(".editorial-heading", {
+          scrollTrigger: {
+            trigger: ".editorial-heading",
+            start: "top 85%",
+            invalidateOnRefresh: true,
+          },
+          y: 80,
+          opacity: 0,
+          duration: 1.2,
+          ease: "power3.out",
+        });
+      }
+
+      if (document.querySelector(".footer-cta")) {
+        footerCtaTween = gsap.from(".footer-cta", {
+          scrollTrigger: {
+            trigger: ".footer-cta",
+            start: "top 80%",
+            invalidateOnRefresh: true,
+          },
+          scale: 0.92,
+          opacity: 0,
+          duration: 1.5,
+          ease: "power3.out",
+        });
+      }
+
+      if (document.querySelector(".footer-column")) {
+        footerColumnsTween = gsap.from(".footer-column", {
+          scrollTrigger: {
+            trigger: ".footer-columns",
+            start: "top 85%",
+            invalidateOnRefresh: true,
+          },
+          y: 50,
+          opacity: 0,
+          stagger: 0.12,
+          duration: 1,
+          ease: "power3.out",
+        });
+      }
+
+      if (document.querySelector(".footer-brand-wrapper")) {
+        footerBrandTween = gsap.fromTo(
+          ".footer-brand-wrapper",
+          { scale: 0.9, opacity: 0.05 },
+          {
+            scale: 1,
+            opacity: 1,
+            scrollTrigger: {
+              trigger: ".footer-brand-wrapper",
+              start: "top bottom",
+              end: "center center",
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          }
+        );
+      }
+    }
+
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 200);
+
     return () => {
-      ctx.revert();
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      heroCtx.revert();
+      editorialTween?.kill();
+      editorialHeadingTween?.kill();
+      footerCtaTween?.kill();
+      footerColumnsTween?.kill();
+      footerBrandTween?.kill();
     };
-  }, [isMobile]);
+  }, [isMobile, deviceReady]);
 
   // =========================
   // TOAST ANIMATION

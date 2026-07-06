@@ -1,11 +1,12 @@
 const Razorpay = require("razorpay");
 
-const razorpay = new Razorpay({
-     key_id: 
-     process.env.RAZORPAY_KEY_ID,
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  console.warn("RAZORPAY CONFIG WARNING: Missing Razorpay environment variables.");
+}
 
-     key_secret:
-     process.env.RAZORPAY_KEY_SECRET,
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 module.exports = razorpay;

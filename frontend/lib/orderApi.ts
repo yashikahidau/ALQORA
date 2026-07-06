@@ -46,16 +46,7 @@ export const updateOrderStatus = async (
 };
 
 export const cancelOrder = async (orderId: string) => {
-  try {
-    return await protectedFetch(`/orders/cancel/${orderId}`, {
-      method: "PUT",
-    });
-  } catch (error) {
-    console.error(error);
-
-    return {
-      success: false,
-      error: "Failed to cancel order",
-    };
-  }
+  return protectedFetch(`/orders/cancel/${orderId}`, {
+    method: "PUT",
+  });
 };

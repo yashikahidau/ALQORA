@@ -1,8 +1,8 @@
 const nodemailer = require("nodemailer");
 
-let transporter;
+let transporter = null;
 
-const getTransporter = () => {
+const getTransporter = async () => {
   if (transporter) return transporter;
 
   transporter = nodemailer.createTransport({
@@ -13,16 +13,27 @@ const getTransporter = () => {
     },
   });
 
+  try {
+    await transporter.verify();
+    console.log("EMAIL TRANSPORT READY");
+  } catch (error) {
+    console.error("EMAIL TRANSPORT VERIFY FAILED:", error);
+  }
+
   return transporter;
 };
 
 const sendEmail = async (to, subject, html) => {
   try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      throw new Error("EMAIL_USER or EMAIL_PASS is missing in environment");
+    }
+
     if (!to || !subject || !html) {
       throw new Error("Missing email fields");
     }
 
-    const mailer = getTransporter();
+    const mailer = await getTransporter();
 
     const info = await mailer.sendMail({
       from: `"ALQORA" <${process.env.EMAIL_USER}>`,

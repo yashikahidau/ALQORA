@@ -157,6 +157,31 @@ app.get("/", (req, res) => {
      });
 });
 
+
+app.get("/db-ping", async (req, res) => {
+  const start = Date.now();
+
+  try {
+    const Order = require("./models/Order");
+
+    const count = await Order.countDocuments();
+
+    return res.json({
+      success: true,
+      count,
+      timeMs: Date.now() - start,
+    });
+  } catch (error) {
+    console.error("DB PING ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+      timeMs: Date.now() - start,
+    });
+  }
+});
+
+
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -196,6 +221,8 @@ app.use((err, req, res, next) => {
 });
 
 connectDB();
+
+
 
 app.listen(PORT, () => {
 

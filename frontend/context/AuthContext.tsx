@@ -5,12 +5,12 @@ import {
   registerUser,
   getMyProfile,
 } from "@/lib/authApi";
-
 import {
   createContext,
   useContext,
   useState,
   useEffect,
+  useCallback,
 } from "react";
 
 export interface User {
@@ -63,18 +63,22 @@ export function AuthProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [user, setUser] =
-    useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [isLoading, setIsLoading] =
-    useState(true);
+  const clearAuth = useCallback(() => {
+    if (typeof window === "undefined") return;
 
-  const refreshUser = async () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("alqora-user");
+    setUser(null);
+  }, []);
+
+  const refreshUser = useCallback(async () => {
     try {
-      const token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("token")
-          : null;
+      if (typeof window === "undefined") return;
+
+      const token = localStorage.getItem("token");
 
       if (!token) {
         setUser(null);
@@ -90,42 +94,67 @@ export function AuthProvider({
           "alqora-user",
           JSON.stringify(response.user)
         );
-      } else {
-        localStorage.removeItem("token");
-        localStorage.removeItem("alqora-user");
-        setUser(null);
+        return;
+      }
+
+      // only clear session if backend explicitly says token is invalid
+      if (response?.unauthorized) {
+        clearAuth();
+        return;
+      }
+
+      // temporary backend / network issue -> keep cached user if available
+      const cachedUser = localStorage.getItem("alqora-user");
+
+      if (cachedUser) {
+        try {
+          setUser(JSON.parse(cachedUser));
+        } catch {
+          setUser(null);
+        }
       }
     } catch (error) {
       console.error(
         "Failed to restore auth session:",
         error
       );
-      localStorage.removeItem("token");
-      localStorage.removeItem("alqora-user");
-      setUser(null);
+
+      // keep cached session on transient failure
+      if (typeof window !== "undefined") {
+        const cachedUser =
+          localStorage.getItem("alqora-user");
+
+        if (cachedUser) {
+          try {
+            setUser(JSON.parse(cachedUser));
+            return;
+          } catch {
+            setUser(null);
+          }
+        }
+      }
     }
-  };
+  }, [clearAuth]);
 
   const login = async (
     email: string,
     password: string
   ): Promise<AuthResponse> => {
     try {
-      const response =
-        await loginUser(email, password);
+      const response = await loginUser(
+        email,
+        password
+      );
 
-      if (!response.success) {
+      if (!response?.success) {
         return {
           success: false,
-          error: response.error,
+          error:
+            response?.error || "Login failed",
         };
       }
 
-      localStorage.setItem(
-        "token",
-        response.token
-      );
-
+      localStorage.setItem("token", response.token);
       localStorage.setItem(
         "alqora-user",
         JSON.stringify(response.user)
@@ -133,9 +162,7 @@ export function AuthProvider({
 
       setUser(response.user);
 
-      return {
-        success: true,
-      };
+      return { success: true };
     } catch {
       return {
         success: false,
@@ -162,23 +189,22 @@ export function AuthProvider({
     password: string
   ): Promise<AuthResponse> => {
     try {
-      const response =
-        await registerUser(
-          name,
-          email,
-          password
-        );
+      const response = await registerUser(
+        name,
+        email,
+        password
+      );
 
-      if (!response.success) {
+      if (!response?.success) {
         return {
           success: false,
-          error: response.error,
+          error:
+            response?.error ||
+            "Registration failed",
         };
       }
 
-      return {
-        success: true,
-      };
+      return { success: true };
     } catch {
       return {
         success: false,
@@ -188,20 +214,35 @@ export function AuthProvider({
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("alqora-user");
-    setUser(null);
+    clearAuth();
     window.location.href = "/login";
   };
 
   useEffect(() => {
     const initAuth = async () => {
-      await refreshUser();
-      setIsLoading(false);
+      try {
+        if (typeof window !== "undefined") {
+          const cachedUser =
+            localStorage.getItem("alqora-user");
+
+          // hydrate instantly from cache first
+          if (cachedUser) {
+            try {
+              setUser(JSON.parse(cachedUser));
+            } catch {
+              localStorage.removeItem("alqora-user");
+            }
+          }
+        }
+
+        await refreshUser();
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     initAuth();
-  }, []);
+  }, [refreshUser]);
 
   return (
     <AuthContext.Provider

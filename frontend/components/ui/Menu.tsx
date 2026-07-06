@@ -123,7 +123,7 @@ export const Menu = ({
           <nav className="flex flex-col gap-3 md:gap-5 my-auto py-2 overflow-hidden">
             {menuItems.map((item, i) => (
               <motion.div
-                key={item.title}
+                key={item.href}
                 initial={{ opacity: 0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}

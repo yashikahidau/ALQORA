@@ -11,7 +11,10 @@ export const protectedFetch = async (
 
   const headers = new Headers(options.headers || {});
 
-  if (!headers.has("Content-Type") && !(options.body instanceof FormData)) {
+  if (
+    !headers.has("Content-Type") &&
+    !(options.body instanceof FormData)
+  ) {
     headers.set("Content-Type", "application/json");
   }
 
@@ -19,20 +22,39 @@ export const protectedFetch = async (
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
 
-  if (response.status === 401) {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      localStorage.removeItem("alqora-user");
-      window.location.href = "/login";
+    const data = await response.json().catch(() => null);
+
+    if (response.status === 401) {
+      return {
+        success: false,
+        unauthorized: true,
+        error: data?.error || "Unauthorized",
+      };
     }
-    return null;
-  }
 
-  const data = await response.json().catch(() => null);
-  return data;
+    if (!response.ok) {
+      return {
+        success: false,
+        error:
+          data?.error ||
+          data?.message ||
+          "Request failed",
+      };
+    }
+
+    return data;
+  } catch (error) {
+    console.error("protectedFetch error:", error);
+
+    return {
+      success: false,
+      error: "Network error. Please try again.",
+    };
+  }
 };

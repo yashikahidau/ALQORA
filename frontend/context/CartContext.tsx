@@ -14,6 +14,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from "react";
 
 export interface CartItem {
@@ -39,14 +40,13 @@ interface CartContextType {
     error?: string;
   }>;
   loadCart: () => Promise<void>;
+  setCartState: (items: CartItem[]) => void;
   totalPrice: number;
   totalItems: number;
 }
 
 const CartContext =
-  createContext<CartContextType | undefined>(
-    undefined
-  );
+  createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({
   children,
@@ -54,7 +54,12 @@ export const CartProvider = ({
   children: React.ReactNode;
 }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
-  const loadCart = async () => {
+
+  const setCartState = useCallback((items: CartItem[]) => {
+    setCart(items);
+  }, []);
+
+  const loadCart = useCallback(async () => {
     try {
       const token =
         typeof window !== "undefined"
@@ -68,59 +73,50 @@ export const CartProvider = ({
 
       const response = await getCart();
 
-      if (response?.success && response.data?.items) {
-  const mappedCart = response.data.items
-    .map((item: any) => ({
-      product: item.productId,
-      quantity: item.quantity,
-    }))
-    .filter(
-      (item: any) =>
-        item &&
-        item.product &&
-        item.product._id &&
-        item.product.price !== undefined &&
-        item.quantity > 0
-    );
+      if (response?.success && Array.isArray(response.data?.items)) {
+        const mappedCart = response.data.items
+          .map((item: any) => ({
+            product: item.productId,
+            quantity: item.quantity,
+          }))
+          .filter(
+            (item: any) =>
+              item &&
+              item.product &&
+              item.product._id &&
+              item.product.price !== undefined &&
+              item.quantity > 0
+          );
 
-  setCart(mappedCart);
-} else {
-  setCart([]);
-}
+        setCart(mappedCart);
+      } else {
+        setCart([]);
+      }
     } catch (error) {
-      console.error(
-        "Failed to load cart:",
-        error
-      );
+      console.error("Failed to load cart:", error);
       setCart([]);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadCart();
-  }, []);
+  }, [loadCart]);
 
   const addToCart = async (
     product: Product,
     quantity = 1
   ) => {
     try {
-      const response = await addToCartApi(
-        product._id,
-        quantity
-      );
+      const response = await addToCartApi(product._id, quantity);
 
       if (!response?.success) {
         return {
           success: false,
-          error:
-            response?.error ||
-            "Failed to add item to cart",
+          error: response?.error || "Failed to add item to cart",
         };
       }
 
       await loadCart();
-
       return { success: true };
     } catch (error) {
       console.error(error);
@@ -131,24 +127,18 @@ export const CartProvider = ({
     }
   };
 
-  const removeFromCart = async (
-    productId: string
-  ) => {
+  const removeFromCart = async (productId: string) => {
     try {
-      const response =
-        await removeFromCartApi(productId);
+      const response = await removeFromCartApi(productId);
 
       if (!response?.success) {
         return {
           success: false,
-          error:
-            response?.error ||
-            "Failed to remove item",
+          error: response?.error || "Failed to remove item",
         };
       }
 
       await loadCart();
-
       return { success: true };
     } catch (error) {
       console.error(error);
@@ -164,23 +154,16 @@ export const CartProvider = ({
     quantity: number
   ) => {
     try {
-      const response =
-        await updateCartQuantity(
-          productId,
-          quantity
-        );
+      const response = await updateCartQuantity(productId, quantity);
 
       if (!response?.success) {
         return {
           success: false,
-          error:
-            response?.error ||
-            "Failed to update quantity",
+          error: response?.error || "Failed to update quantity",
         };
       }
 
       await loadCart();
-
       return { success: true };
     } catch (error) {
       console.error(error);
@@ -198,14 +181,11 @@ export const CartProvider = ({
       if (!response?.success) {
         return {
           success: false,
-          error:
-            response?.error ||
-            "Failed to clear cart",
+          error: response?.error || "Failed to clear cart",
         };
       }
 
-      await loadCart();
-
+      setCart([]);
       return { success: true };
     } catch (error) {
       console.error(error);
@@ -216,35 +196,36 @@ export const CartProvider = ({
     }
   };
 
- const safeCart = cart.filter(
-  (item) =>
-    item &&
-    item.product &&
-    item.product._id &&
-    item.product.price !== undefined &&
-    item.quantity > 0
-);
+  const safeCart = cart.filter(
+    (item) =>
+      item &&
+      item.product &&
+      item.product._id &&
+      item.product.price !== undefined &&
+      item.quantity > 0
+  );
 
-const totalPrice = safeCart.reduce(
-  (total, item) =>
-    total + Number(item.product.price || 0) * item.quantity,
-  0
-);
+  const totalPrice = safeCart.reduce(
+    (total, item) =>
+      total + Number(item.product.price || 0) * item.quantity,
+    0
+  );
 
-const totalItems = safeCart.reduce(
-  (total, item) => total + item.quantity,
-  0
-);
+  const totalItems = safeCart.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
 
   return (
     <CartContext.Provider
       value={{
-        cart,
+        cart: safeCart,
         addToCart,
         removeFromCart,
         updateQuantity,
         clearCart,
         loadCart,
+        setCartState,
         totalPrice,
         totalItems,
       }}

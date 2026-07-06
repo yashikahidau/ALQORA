@@ -167,35 +167,37 @@ export const TextRevealSection = () => {
         {/* TOP PARAGRAPH */}
         <div
           className="
-            mobile-fade
-            relative
-            z-20
-            max-w-[220px]
-            sm:max-w-[280px]
-            md:absolute
-            md:top-[11vh]
-            md:left-[8vw]
-            md:max-w-[520px]
-            mb-6
-            sm:mb-8
-            md:mb-0
-          "
+    mobile-fade
+    relative
+    z-20
+    max-w-[220px]
+    sm:max-w-[280px]
+    md:absolute
+    md:top-[11vh]
+    md:left-[8vw]
+    md:max-w-[520px]
+    mb-6
+    sm:mb-8
+    md:mb-0
+    opacity-100
+  "
         >
           <p
-            className="
-              reveal-para
-              text-left
-              text-[13px]
-              sm:text-[16px]
-              md:text-[40px]
-              leading-[1.45]
-              md:leading-[1.2]
-              tracking-[-0.015em]
-              md:tracking-[-0.03em]
-              text-white
-              font-light
-            "
-          >
+  className="
+    reveal-para
+    text-left
+    text-[13px]
+    sm:text-[16px]
+    md:text-[40px]
+    leading-[1.45]
+    md:leading-[1.2]
+    tracking-[-0.015em]
+    md:tracking-[-0.03em]
+    text-white
+    font-light
+    opacity-100
+  "
+>
             embrace softness,
             <br />
             trust your aura and feel
