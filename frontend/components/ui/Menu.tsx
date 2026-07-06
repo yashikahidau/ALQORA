@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useStoreSettings } from "@/context/StoreSettingsContext";
 
 export const Menu = ({
   onClose,
@@ -13,6 +14,8 @@ export const Menu = ({
   onClose: () => void;
 }) => {
   const { user, logout } = useAuth();
+  const { wishlistEnabled } = useStoreSettings();
+
   const isAdmin = user?.role === "admin";
 
   const adminMenuItems = [
@@ -22,28 +25,43 @@ export const Menu = ({
     { title: "Settings", href: "/admin/settings" },
   ];
 
-  const customerMenuItems = [
-    { title: "Shop", href: "/shop" },
-    { title: "Wishlist", href: "/wishlist" },
-    { title: "Account", href: "/account" },
-    { title: "Orders", href: "/account/orders" },
-  ];
+  const customerMenuItems = user
+    ? [
+        { title: "Shop", href: "/shop" },
+        { title: "Account", href: "/account" },
+        ...(wishlistEnabled
+          ? [{ title: "Wishlist", href: "/wishlist" }]
+          : []),
+        { title: "Orders", href: "/account/orders" },
+      ]
+    : [
+        { title: "Shop", href: "/shop" },
+        { title: "Login", href: "/login" },
+      ];
 
-  const menuItems = isAdmin ? adminMenuItems : customerMenuItems;
+  const menuItems = isAdmin
+    ? adminMenuItems
+    : customerMenuItems;
+
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    
-    const originalOverflow = document.documentElement.style.overflow;
-    const originalBodyOverflow = document.body.style.overflow;
-    
-    document.documentElement.style.overflow = "hidden";
+
+    const originalOverflow =
+      document.documentElement.style.overflow;
+    const originalBodyOverflow =
+      document.body.style.overflow;
+
+    document.documentElement.style.overflow =
+      "hidden";
     document.body.style.overflow = "hidden";
 
     return () => {
-      document.documentElement.style.overflow = originalOverflow;
-      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow =
+        originalOverflow;
+      document.body.style.overflow =
+        originalBodyOverflow;
     };
   }, []);
 
@@ -60,7 +78,7 @@ export const Menu = ({
         className="absolute inset-0 bg-[#2D211D]/30 backdrop-blur-[14px]"
       />
 
-      {/* PANEL (Completely locked - No X or Y axis scrolling allowed) */}
+      {/* PANEL */}
       <motion.div
         initial={{ x: "-100%" }}
         animate={{ x: 0 }}
@@ -76,9 +94,8 @@ export const Menu = ({
         <div className="absolute top-[-10%] left-[-10%] h-[420px] w-[420px] rounded-full bg-[#E8C9B8]/25 blur-[120px] pointer-events-none" />
         <div className="absolute bottom-[-10%] right-[-10%] h-[380px] w-[380px] rounded-full bg-[#7A2E3A]/[0.06] blur-[120px] pointer-events-none" />
 
-        {/* CONTENT BOUNDARY CONTAINER */}
+        {/* CONTENT */}
         <div className="relative z-10 flex flex-col h-full px-8 md:px-14 pt-10 pb-12 overflow-hidden">
-          
           {/* TOP HEADER */}
           <div className="flex items-center justify-between shrink-0 mb-6 md:mb-8">
             <div>
@@ -119,9 +136,9 @@ export const Menu = ({
                   <span className="font-[family:var(--font-cormorant)] text-[32px] sm:text-[38px] md:text-[46px] lg:text-[52px] leading-[0.95] tracking-[-0.04em] uppercase text-[#2D211D] transition-all duration-500 group-hover:translate-x-2 group-hover:text-[#7A2E3A] pr-4 block truncate select-none">
                     {item.title}
                   </span>
-                  
+
                   <span className="mb-1 text-[10px] uppercase tracking-[0.35em] text-[#A17F72] shrink-0 font-medium">
-                    0{i + 1}
+                    {String(i + 1).padStart(2, "0")}
                   </span>
                 </Link>
               </motion.div>
@@ -151,6 +168,27 @@ export const Menu = ({
                   Sign Out
                 </button>
               </div>
+            ) : user ? (
+              <div className="space-y-4 pt-6 border-t border-[#E7D8CF]/60">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.35em] text-[#A17F72]">
+                    Signed in as
+                  </p>
+                  <h3 className="mt-1 text-xl font-[family:var(--font-cormorant)] text-[#2D211D]">
+                    {user.name}
+                  </h3>
+                </div>
+
+                <button
+                  onClick={() => {
+                    logout();
+                    onClose();
+                  }}
+                  className="w-full h-[50px] rounded-full bg-[#7A2E3A] text-white text-[10px] uppercase tracking-[0.35em] font-medium transition-all duration-500 hover:bg-[#2D211D] shadow-sm"
+                >
+                  Sign Out
+                </button>
+              </div>
             ) : (
               <div className="flex items-center justify-between border-t border-[#E7D8CF]/60 pt-4">
                 <span className="text-[10px] uppercase tracking-[0.35em] text-[#A17F72]">
@@ -162,7 +200,6 @@ export const Menu = ({
               </div>
             )}
           </div>
-
         </div>
       </motion.div>
     </div>,
