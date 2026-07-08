@@ -56,7 +56,16 @@ const Hero = forwardRef<HTMLDivElement>((props, ref) => {
           font-weight: 700;
           position: relative;
           z-index: 50;
-          will-change: transform, opacity;
+          
+          /* CRITICAL FOR CRISP SCALING TEXT CLIPPING:
+             Forces browser to retain crisp vector sampling instead of low-res cached bitmaps */
+          will-change: opacity;
+          transform: translateZ(0);
+          transform-style: preserve-3d;
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
         }
 
         /* DESKTOP: image-filled text for GSAP hero animation */
@@ -75,18 +84,18 @@ const Hero = forwardRef<HTMLDivElement>((props, ref) => {
 
         /* MOBILE: keep it simple and stable */
         @media (max-width: 767px) {
-  .alqora-text {
-    color: rgba(255, 250, 246, 0.96);
-    background: none;
-    -webkit-background-clip: initial;
-    background-clip: initial;
-    opacity: 1;
-    text-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.12),
-      0 8px 24px rgba(0, 0, 0, 0.12);
-    transform: translateY(-4vh);
-  }
-}
+          .alqora-text {
+            color: rgba(255, 250, 246, 0.96);
+            background: none;
+            -webkit-background-clip: initial;
+            background-clip: initial;
+            opacity: 1;
+            text-shadow:
+              0 1px 2px rgba(0, 0, 0, 0.12),
+              0 8px 24px rgba(0, 0, 0, 0.12);
+            transform: translateY(-4vh);
+          }
+        }
       `}</style>
     </section>
   );

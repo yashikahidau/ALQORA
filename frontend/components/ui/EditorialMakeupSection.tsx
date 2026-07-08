@@ -1,7 +1,11 @@
 "use client";
 
+import React, { useEffect, useRef } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const cards = [
   {
@@ -31,8 +35,65 @@ const cards = [
 ];
 
 export const EditorialMakeupSection = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const initTimeout = setTimeout(() => {
+      const ctx = gsap.context(() => {
+        
+        // 1. Heading Entrance
+        gsap.fromTo(
+          ".editorial-heading",
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+              invalidateOnRefresh: true,
+            },
+          }
+        );
+
+        // 2. Image Cards Entrance (with clean transform clearing)
+        gsap.fromTo(
+          ".editorial-card",
+          { y: 60, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            stagger: 0.1,
+            ease: "power2.out",
+            // Clears inline transforms so Tailwind hover scales don't fight with GSAP
+            onComplete: () => {
+              gsap.set(".editorial-card", { clearProps: "transform" });
+            },
+           ScrollTrigger: {
+              trigger: ".editorial-grid",
+              start: "top 90%",
+              toggleActions: "play none none reverse",
+              invalidateOnRefresh: true,
+            },
+          }
+        );
+      }, sectionRef);
+
+      ScrollTrigger.refresh();
+    }, 150);
+
+    return () => clearTimeout(initTimeout);
+  }, []);
+
   return (
     <section
+      ref={sectionRef}
       className="
         relative
         overflow-hidden
@@ -154,6 +215,7 @@ export const EditorialMakeupSection = () => {
         {/* GRID */}
         <div
           className="
+            editorial-grid
             mt-12
             grid
             grid-cols-1
@@ -166,17 +228,9 @@ export const EditorialMakeupSection = () => {
             xl:grid-cols-4
           "
         >
-          {cards.map((item, index) => (
-            <motion.div
+          {cards.map((item) => (
+            <div
               key={item.title}
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{
-                duration: 0.9,
-                delay: index * 0.08,
-                ease: [0.22, 1, 0.36, 1],
-              }}
               className="
                 editorial-card
                 group
@@ -188,6 +242,7 @@ export const EditorialMakeupSection = () => {
                 sm:aspect-[0.78]
                 md:rounded-[28px]
                 xl:aspect-[0.76]
+                will-change-transform
               "
             >
               {/* IMAGE */}
@@ -201,9 +256,9 @@ export const EditorialMakeupSection = () => {
                   className="
                     object-cover
                     transition-transform
-                    duration-[1800ms]
+                    duration-[1200ms]
                     ease-out
-                    md:group-hover:scale-[1.08]
+                    md:group-hover:scale-[1.06]
                   "
                 />
               </div>
@@ -213,11 +268,11 @@ export const EditorialMakeupSection = () => {
                 className="
                   absolute
                   inset-0
-                  bg-[linear-gradient(to_top,rgba(0,0,0,0.62),rgba(0,0,0,0.16),transparent)]
+                  bg-[linear-gradient(to_top,rgba(0,0,0,0.65),rgba(0,0,0,0.15),transparent)]
                   opacity-100
                   md:opacity-70
                   transition-all
-                  duration-700
+                  duration-500
                   md:group-hover:opacity-100
                 "
               />
@@ -235,10 +290,10 @@ export const EditorialMakeupSection = () => {
                   xl:p-10
                   opacity-100
                   translate-y-0
-                  md:translate-y-8
+                  md:translate-y-4
                   md:opacity-0
                   transition-all
-                  duration-700
+                  duration-500
                   md:group-hover:translate-y-0
                   md:group-hover:opacity-100
                 "
@@ -306,15 +361,15 @@ export const EditorialMakeupSection = () => {
                     className="
                       text-[18px]
                       transition-transform
-                      duration-500
-                      md:group-hover:translate-x-2
+                      duration-300
+                      md:group-hover:translate-x-1.5
                     "
                   >
                     →
                   </span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

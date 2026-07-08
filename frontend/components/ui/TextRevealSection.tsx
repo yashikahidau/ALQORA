@@ -21,6 +21,7 @@ export const TextRevealSection = () => {
     const mm = gsap.matchMedia();
 
     const ctx = gsap.context(() => {
+      // DESKTOP: Initialization styles for the master timeline inside page.tsx
       mm.add("(min-width: 768px)", () => {
         const chars = gsap.utils.toArray<HTMLElement>(
           sectionRef.current!.querySelectorAll(".compress-char")
@@ -31,38 +32,14 @@ export const TextRevealSection = () => {
           opacity: 0.28,
         });
 
-        gsap.to(chars, {
-          x: 0,
-          opacity: 1,
-          ease: "power2.out",
-          stagger: 0.008,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 75%",
-            end: "top 20%",
-            scrub: 1,
-            invalidateOnRefresh: true,
-          },
+        // Setup the initial hidden state for the paragraph
+        gsap.set(sectionRef.current!.querySelector(".reveal-para"), {
+          y: 24,
+          opacity: 0,
         });
-
-        gsap.fromTo(
-          sectionRef.current!.querySelector(".reveal-para"),
-          { y: 24, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 1,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 78%",
-              once: true,
-              invalidateOnRefresh: true,
-            },
-          }
-        );
       });
 
+      // MOBILE: Normal independent scroll triggers (No changes here)
       mm.add("(max-width: 767px)", () => {
         gsap.fromTo(
           sectionRef.current!.querySelectorAll(".mobile-fade"),
@@ -214,30 +191,30 @@ export const TextRevealSection = () => {
         {/* RIGHT TYPOGRAPHY */}
         <div
           className="
-    absolute
-    right-[2.8vw]
-    bottom-[6vh]
-    z-10
-    flex
-    justify-end
-  "
+            absolute
+            right-[2.8vw]
+            bottom-[6vh]
+            z-10
+            flex
+            justify-end
+          "
         >
-        <h2
-  className="
-    text-right
-    text-[clamp(72px,8.4vw,128px)]
-    leading-[0.82]
-    tracking-[-0.075em]
-    font-extralight
-    text-[#FFFDFB]
-    max-w-[920px]
-  "
->
+          <h2
+            className="
+              text-right
+              text-[clamp(72px,8.4vw,128px)]
+              leading-[0.82]
+              tracking-[-0.075em]
+              font-extralight
+              text-[#FFFDFB]
+              max-w-[920px]
+            "
+          >
             {lines.map((line, lineIdx) => (
-             <div
-  key={lineIdx}
-  className="block whitespace-nowrap w-full text-right"
->
+              <div
+                key={lineIdx}
+                className="block whitespace-nowrap w-full text-right"
+              >
                 {line.split("").map((char, charIdx) => (
                   <span
                     key={charIdx}

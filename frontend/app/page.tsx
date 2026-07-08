@@ -145,26 +145,33 @@ export default function Home() {
         "<"
       );
 
-      // TEXT REVEAL COMES UP
+      // TEXT REVEAL COMES UP & REVEALS BOTH ELEMENTS SYNCHRONOUSLY
       tl.to(".text-reveal-block", {
         y: "-100vh",
         duration: 3,
         ease: "power2.inOut",
-      }).fromTo(
-        ".compress-char",
-        {
-          y: 120,
-          opacity: 0,
-        },
-        {
-          y: 0,
-          opacity: 1,
-          stagger: 0.018,
-          duration: 1.8,
-          ease: "power3.out",
-        },
-        "-=1.2"
-      );
+      })
+        .to(
+          ".reveal-para",
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.5,
+            ease: "power2.out",
+          },
+          "-=1.5"
+        )
+        .to(
+          ".compress-char",
+          {
+            x: 0,
+            opacity: 1,
+            stagger: 0.012,
+            duration: 1.8,
+            ease: "power2.out",
+          },
+          "-=1.2"
+        );
     }, desktopStackRef);
 
     // =========================
