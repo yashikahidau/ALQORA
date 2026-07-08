@@ -18,17 +18,14 @@ export default function Home() {
 
   const [isReady, setIsReady] = useState(false);
   const [showToast, setShowToast] = useState(false);
-
-  // IMPORTANT:
-  // don't assume desktop first. wait until device size is known.
   const [isMobile, setIsMobile] = useState(false);
   const [deviceReady, setDeviceReady] = useState(false);
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const desktopStackRef = useRef<HTMLDivElement>(null);
   const toastRef = useRef<HTMLDivElement>(null);
 
   // =========================
-  // MOBILE DETECTION
+  // DEVICE DETECTION
   // =========================
   useEffect(() => {
     const checkMobile = () => {
@@ -38,12 +35,11 @@ export default function Home() {
 
     checkMobile();
     window.addEventListener("resize", checkMobile);
-
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // =========================
-  // LOGIN SUCCESS TOAST CHECK
+  // LOGIN TOAST FLAG
   // =========================
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -65,26 +61,51 @@ export default function Home() {
   }, []);
 
   // =========================
-  // MAIN PAGE ANIMATION
+  // DESKTOP STACK ANIMATION ONLY
   // =========================
   useEffect(() => {
-    if (!containerRef.current || !deviceReady) return;
+    if (!deviceReady) return;
 
-    // kill old triggers before rebuilding
+    // wipe previous triggers before rebuilding
     ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
 
-    // -----------------------------
-    // 1) HERO / CATEGORY / DESKTOP TEXT STACK
-    // scoped only to containerRef
-    // -----------------------------
-    const heroCtx = gsap.context(() => {
+    if (isMobile) {
+      setIsReady(true);
+
+      // clear stale desktop-applied styles
+      gsap.set(
+        [
+          ".category-block",
+          ".text-reveal-block",
+          ".editorial-card",
+          ".editorial-heading",
+          ".footer-cta",
+          ".footer-column",
+          ".footer-brand-wrapper",
+        ],
+        {
+          clearProps: "all",
+          opacity: 1,
+          x: 0,
+          y: 0,
+          scale: 1,
+        }
+      );
+
+      setTimeout(() => ScrollTrigger.refresh(), 100);
+      return;
+    }
+
+    if (!desktopStackRef.current) return;
+
+    const desktopCtx = gsap.context(() => {
       setIsReady(true);
 
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: containerRef.current,
+          trigger: desktopStackRef.current,
           start: "top top",
-          end: isMobile ? "+=165%" : "+=600%",
+          end: "+=600%",
           scrub: 1,
           pin: true,
           anticipatePin: 1,
@@ -92,9 +113,9 @@ export default function Home() {
         },
       });
 
-      // STAGE 1 — HERO
+      // HERO
       tl.to(".alqora-text", {
-        scale: isMobile ? 1.55 : 2.2,
+        scale: 2.2,
         opacity: 1,
         duration: 2,
         backgroundPosition: "50% 20%",
@@ -109,164 +130,132 @@ export default function Home() {
         0
       );
 
-      // STAGE 2 — CATEGORY
+      // CATEGORY COMES UP
       tl.to(".category-block", {
-        y: isMobile ? "-100vh" : "-125vh",
+        y: "-125vh",
         duration: 3,
         ease: "power2.inOut",
       }).to(
         ".alqora-text",
         {
-          y: isMobile ? -220 : -500,
+          y: -500,
           duration: 3,
           ease: "power2.inOut",
         },
         "<"
       );
 
-      // STAGE 3 — DESKTOP ONLY TEXT REVEAL IN PINNED STACK
-      if (!isMobile) {
-        tl.to(".text-reveal-block", {
-          y: "-100vh",
-          duration: 3,
-          ease: "power2.inOut",
-        }).fromTo(
-          ".compress-char",
-          {
-            y: 120,
-            opacity: 0,
-          },
-          {
-            y: 0,
-            opacity: 1,
-            stagger: 0.018,
-            duration: 1.8,
-            ease: "power3.out",
-          },
-          "-=1.2"
-        );
-      }
-    }, containerRef);
-
-    // -----------------------------
-    // 2) MOBILE RESET
-    // very important:
-    // if mobile, force editorial/footer elements visible and clear
-    // any stale inline GSAP styles from previous desktop setup.
-    // -----------------------------
-    if (isMobile) {
-      gsap.set(
-        [
-          ".editorial-card",
-          ".editorial-heading",
-          ".footer-cta",
-          ".footer-column",
-          ".footer-brand-wrapper",
-        ],
+      // TEXT REVEAL COMES UP
+      tl.to(".text-reveal-block", {
+        y: "-100vh",
+        duration: 3,
+        ease: "power2.inOut",
+      }).fromTo(
+        ".compress-char",
         {
-          clearProps: "all",
-          opacity: 1,
+          y: 120,
+          opacity: 0,
+        },
+        {
           y: 0,
-          x: 0,
-          scale: 1,
-        }
+          opacity: 1,
+          stagger: 0.018,
+          duration: 1.8,
+          ease: "power3.out",
+        },
+        "-=1.2"
       );
-    }
+    }, desktopStackRef);
 
-    // -----------------------------
-    // 3) EDITORIAL + FOOTER ANIMS
-    // DESKTOP ONLY
-    // -----------------------------
+    // =========================
+    // DESKTOP EDITORIAL + FOOTER ANIMS
+    // =========================
     let editorialTween: gsap.core.Tween | null = null;
     let editorialHeadingTween: gsap.core.Tween | null = null;
     let footerCtaTween: gsap.core.Tween | null = null;
     let footerColumnsTween: gsap.core.Tween | null = null;
     let footerBrandTween: gsap.core.Tween | null = null;
 
-    if (!isMobile) {
-      if (document.querySelector(".editorial-card")) {
-        editorialTween = gsap.from(".editorial-card", {
-          scrollTrigger: {
-            trigger: ".editorial-block",
-            start: "top 75%",
-            invalidateOnRefresh: true,
-          },
-          y: 120,
-          opacity: 0,
-          duration: 1.4,
-          stagger: 0.2,
-          ease: "power3.out",
-        });
-      }
-
-      if (document.querySelector(".editorial-heading")) {
-        editorialHeadingTween = gsap.from(".editorial-heading", {
-          scrollTrigger: {
-            trigger: ".editorial-heading",
-            start: "top 85%",
-            invalidateOnRefresh: true,
-          },
-          y: 80,
-          opacity: 0,
-          duration: 1.2,
-          ease: "power3.out",
-        });
-      }
-
-      if (document.querySelector(".footer-cta")) {
-        footerCtaTween = gsap.from(".footer-cta", {
-          scrollTrigger: {
-            trigger: ".footer-cta",
-            start: "top 80%",
-            invalidateOnRefresh: true,
-          },
-          scale: 0.92,
-          opacity: 0,
-          duration: 1.5,
-          ease: "power3.out",
-        });
-      }
-
-      if (document.querySelector(".footer-column")) {
-        footerColumnsTween = gsap.from(".footer-column", {
-          scrollTrigger: {
-            trigger: ".footer-columns",
-            start: "top 85%",
-            invalidateOnRefresh: true,
-          },
-          y: 50,
-          opacity: 0,
-          stagger: 0.12,
-          duration: 1,
-          ease: "power3.out",
-        });
-      }
-
-      if (document.querySelector(".footer-brand-wrapper")) {
-        footerBrandTween = gsap.fromTo(
-          ".footer-brand-wrapper",
-          { scale: 0.9, opacity: 0.05 },
-          {
-            scale: 1,
-            opacity: 1,
-            scrollTrigger: {
-              trigger: ".footer-brand-wrapper",
-              start: "top bottom",
-              end: "center center",
-              scrub: true,
-              invalidateOnRefresh: true,
-            },
-          }
-        );
-      }
+    if (document.querySelector(".editorial-card")) {
+      editorialTween = gsap.from(".editorial-card", {
+        scrollTrigger: {
+          trigger: ".editorial-block",
+          start: "top 75%",
+          invalidateOnRefresh: true,
+        },
+        y: 120,
+        opacity: 0,
+        duration: 1.4,
+        stagger: 0.2,
+        ease: "power3.out",
+      });
     }
 
-    setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 200);
+    if (document.querySelector(".editorial-heading")) {
+      editorialHeadingTween = gsap.from(".editorial-heading", {
+        scrollTrigger: {
+          trigger: ".editorial-heading",
+          start: "top 85%",
+          invalidateOnRefresh: true,
+        },
+        y: 80,
+        opacity: 0,
+        duration: 1.2,
+        ease: "power3.out",
+      });
+    }
+
+    if (document.querySelector(".footer-cta")) {
+      footerCtaTween = gsap.from(".footer-cta", {
+        scrollTrigger: {
+          trigger: ".footer-cta",
+          start: "top 80%",
+          invalidateOnRefresh: true,
+        },
+        scale: 0.92,
+        opacity: 0,
+        duration: 1.5,
+        ease: "power3.out",
+      });
+    }
+
+    if (document.querySelector(".footer-column")) {
+      footerColumnsTween = gsap.from(".footer-column", {
+        scrollTrigger: {
+          trigger: ".footer-columns",
+          start: "top 85%",
+          invalidateOnRefresh: true,
+        },
+        y: 50,
+        opacity: 0,
+        stagger: 0.12,
+        duration: 1,
+        ease: "power3.out",
+      });
+    }
+
+    if (document.querySelector(".footer-brand-wrapper")) {
+      footerBrandTween = gsap.fromTo(
+        ".footer-brand-wrapper",
+        { scale: 0.9, opacity: 0.05 },
+        {
+          scale: 1,
+          opacity: 1,
+          scrollTrigger: {
+            trigger: ".footer-brand-wrapper",
+            start: "top bottom",
+            end: "center center",
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        }
+      );
+    }
+
+    setTimeout(() => ScrollTrigger.refresh(), 200);
 
     return () => {
-      heroCtx.revert();
+      desktopCtx.revert();
       editorialTween?.kill();
       editorialHeadingTween?.kill();
       footerCtaTween?.kill();
@@ -276,7 +265,102 @@ export default function Home() {
   }, [isMobile, deviceReady]);
 
   // =========================
-  // TOAST ANIMATION
+  // MOBILE EDITORIAL / FOOTER ANIMS
+  // =========================
+  useEffect(() => {
+    if (!deviceReady || !isMobile) return;
+
+    let editorialTween: gsap.core.Tween | null = null;
+    let editorialHeadingTween: gsap.core.Tween | null = null;
+    let footerCtaTween: gsap.core.Tween | null = null;
+    let footerColumnsTween: gsap.core.Tween | null = null;
+    let footerBrandTween: gsap.core.Tween | null = null;
+
+    if (document.querySelector(".editorial-card")) {
+      editorialTween = gsap.from(".editorial-card", {
+        scrollTrigger: {
+          trigger: ".editorial-block",
+          start: "top 85%",
+          invalidateOnRefresh: true,
+        },
+        y: 70,
+        opacity: 0,
+        duration: 1,
+        stagger: 0.12,
+        ease: "power3.out",
+      });
+    }
+
+    if (document.querySelector(".editorial-heading")) {
+      editorialHeadingTween = gsap.from(".editorial-heading", {
+        scrollTrigger: {
+          trigger: ".editorial-heading",
+          start: "top 90%",
+          invalidateOnRefresh: true,
+        },
+        y: 40,
+        opacity: 0,
+        duration: 0.9,
+        ease: "power3.out",
+      });
+    }
+
+    if (document.querySelector(".footer-cta")) {
+      footerCtaTween = gsap.from(".footer-cta", {
+        scrollTrigger: {
+          trigger: ".footer-cta",
+          start: "top 90%",
+          invalidateOnRefresh: true,
+        },
+        y: 30,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power3.out",
+      });
+    }
+
+    if (document.querySelector(".footer-column")) {
+      footerColumnsTween = gsap.from(".footer-column", {
+        scrollTrigger: {
+          trigger: ".footer-columns",
+          start: "top 92%",
+          invalidateOnRefresh: true,
+        },
+        y: 24,
+        opacity: 0,
+        stagger: 0.08,
+        duration: 0.75,
+        ease: "power3.out",
+      });
+    }
+
+    if (document.querySelector(".footer-brand-wrapper")) {
+      footerBrandTween = gsap.from(".footer-brand-wrapper", {
+        scrollTrigger: {
+          trigger: ".footer-brand-wrapper",
+          start: "top 95%",
+          invalidateOnRefresh: true,
+        },
+        y: 35,
+        opacity: 0,
+        duration: 0.9,
+        ease: "power3.out",
+      });
+    }
+
+    setTimeout(() => ScrollTrigger.refresh(), 150);
+
+    return () => {
+      editorialTween?.kill();
+      editorialHeadingTween?.kill();
+      footerCtaTween?.kill();
+      footerColumnsTween?.kill();
+      footerBrandTween?.kill();
+    };
+  }, [isMobile, deviceReady]);
+
+  // =========================
+  // TOAST
   // =========================
   useEffect(() => {
     if (!showToast || !toastRef.current) return;
@@ -327,9 +411,7 @@ export default function Home() {
 
   return (
     <main className="relative overflow-hidden bg-[#F5F1ED]">
-      {/* =========================
-          TOAST
-      ========================= */}
+      {/* TOAST */}
       <div
         className={`hidden md:flex fixed bottom-8 right-8 z-[9999] justify-end pointer-events-none px-4 transition-all duration-300 ${
           showToast
@@ -362,53 +444,68 @@ export default function Home() {
       </div>
 
       {/* =========================
-          PINNED HERO / CATEGORY / DESKTOP TEXT STACK
+          DESKTOP ONLY: PINNED STACK
       ========================= */}
-      <div
-        ref={containerRef}
-        className={`
-          relative h-screen w-full overflow-hidden transition-opacity duration-700
-          ${isReady ? "opacity-100" : "opacity-0"}
-        `}
-      >
-        {/* HERO */}
-        <div className="relative z-10 h-screen w-full">
-          <Hero />
-        </div>
+      {!isMobile && (
+        <div
+          ref={desktopStackRef}
+          className={`
+            relative
+            h-screen
+            w-full
+            overflow-hidden
+            transition-opacity
+            duration-700
+            ${isReady ? "opacity-100" : "opacity-0"}
+          `}
+        >
+          <div className="relative z-10 h-screen w-full">
+            <Hero />
+          </div>
 
-        {/* CATEGORY */}
-        <div className="category-block absolute top-full left-0 w-full z-20">
-          <CategorySection />
-        </div>
+          <div className="category-block absolute top-full left-0 w-full z-20">
+            <CategorySection />
+          </div>
 
-        {/* DESKTOP ONLY TEXT REVEAL INSIDE PINNED STACK */}
-        {!isMobile && (
           <div className="text-reveal-block absolute top-[100vh] left-0 w-full z-30">
             <TextRevealSection />
           </div>
-        )}
-      </div>
-
-      {/* =========================
-          MOBILE ONLY TEXT REVEAL
-          NORMAL FLOW AFTER CATEGORY
-      ========================= */}
-      {isMobile && (
-        <div className="relative z-30">
-          <TextRevealSection />
         </div>
       )}
 
       {/* =========================
-          EDITORIAL
+          MOBILE ONLY: NORMAL FLOW
       ========================= */}
+      {isMobile && (
+        <div
+          className={`
+            relative
+            w-full
+            transition-opacity
+            duration-500
+            ${isReady ? "opacity-100" : "opacity-0"}
+          `}
+        >
+          <div className="relative z-10">
+            <Hero />
+          </div>
+
+          <div className="relative z-20">
+            <CategorySection />
+          </div>
+
+          <div className="relative z-30">
+            <TextRevealSection />
+          </div>
+        </div>
+      )}
+
+      {/* EDITORIAL */}
       <div className="editorial-block relative w-full z-40">
         <EditorialMakeupSection />
       </div>
 
-      {/* =========================
-          FOOTER
-      ========================= */}
+      {/* FOOTER */}
       <Footer />
     </main>
   );

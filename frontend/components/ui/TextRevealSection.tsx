@@ -16,53 +16,38 @@ export const TextRevealSection = () => {
   ];
 
   useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const mm = gsap.matchMedia();
+
     const ctx = gsap.context(() => {
-      const isDesktop = window.innerWidth >= 768;
+      mm.add("(min-width: 768px)", () => {
+        const chars = gsap.utils.toArray<HTMLElement>(
+          sectionRef.current!.querySelectorAll(".compress-char")
+        );
 
-      // kill any stale triggers inside this section before rebuilding
-      ScrollTrigger.getAll().forEach((trigger) => {
-        if (
-          sectionRef.current &&
-          trigger.trigger &&
-          sectionRef.current.contains(trigger.trigger as Node)
-        ) {
-          trigger.kill();
-        }
-      });
-
-      if (isDesktop) {
-        const chars = gsap.utils.toArray<HTMLElement>(".compress-char");
-
-        chars.forEach((char, i) => {
-          gsap.set(char, {
-            x: i * 16,
-            opacity: 0.28,
-          });
+        gsap.set(chars, {
+          x: 16,
+          opacity: 0.28,
         });
 
         gsap.to(chars, {
           x: 0,
           opacity: 1,
           ease: "power2.out",
-          stagger: {
-            each: 0.008,
-            from: "start",
-          },
+          stagger: 0.008,
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "top 75%",
-            end: "top 18%",
-            scrub: 1.1,
+            end: "top 20%",
+            scrub: 1,
             invalidateOnRefresh: true,
           },
         });
 
         gsap.fromTo(
-          ".reveal-para",
-          {
-            y: 28,
-            opacity: 0,
-          },
+          sectionRef.current!.querySelector(".reveal-para"),
+          { y: 24, opacity: 0 },
           {
             y: 0,
             opacity: 1,
@@ -76,13 +61,12 @@ export const TextRevealSection = () => {
             },
           }
         );
-      } else {
+      });
+
+      mm.add("(max-width: 767px)", () => {
         gsap.fromTo(
-          ".mobile-fade",
-          {
-            y: 24,
-            opacity: 0,
-          },
+          sectionRef.current!.querySelectorAll(".mobile-fade"),
+          { y: 24, opacity: 0 },
           {
             y: 0,
             opacity: 1,
@@ -97,14 +81,15 @@ export const TextRevealSection = () => {
             },
           }
         );
-      }
+      });
 
-      setTimeout(() => {
-        ScrollTrigger.refresh();
-      }, 100);
+      setTimeout(() => ScrollTrigger.refresh(), 100);
     }, sectionRef);
 
-    return () => ctx.revert();
+    return () => {
+      mm.revert();
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -112,13 +97,11 @@ export const TextRevealSection = () => {
       ref={sectionRef}
       className="
         relative
-        min-h-[48svh] sm:min-h-[54svh] md:min-h-screen
         w-full
         overflow-hidden
         bg-[#ECE6E1]
-        flex
-        items-start
-        md:items-center
+        min-h-[58svh]
+        md:min-h-screen
       "
     >
       {/* BACKGROUND */}
@@ -126,19 +109,12 @@ export const TextRevealSection = () => {
         <img
           src="/bg.avif"
           alt="Soft background texture"
-          className="
-            h-full
-            w-full
-            object-cover
-            opacity-[0.65]
-            scale-105
-          "
+          className="h-full w-full object-cover opacity-[0.65] scale-105"
         />
 
         <div
           className="
-            absolute
-            inset-0
+            absolute inset-0
             bg-[linear-gradient(to_bottom_right,#ffd1dc,#ffe5ec)]
             mix-blend-multiply
             opacity-45
@@ -147,57 +123,27 @@ export const TextRevealSection = () => {
         />
       </div>
 
-      {/* CONTENT */}
+      {/* MOBILE / TABLET */}
       <div
         className="
-          relative
-          z-10
-          w-full
-          px-5
-          sm:px-7
-          md:px-0
-          pt-14
-          pb-8
-          sm:pt-16
-          sm:pb-10
-          md:pt-0
-          md:pb-0
+          relative z-10
+          block md:hidden
+          px-5 sm:px-7
+          pt-14 pb-10
         "
       >
-        {/* TOP PARAGRAPH */}
-        <div
-          className="
-    mobile-fade
-    relative
-    z-20
-    max-w-[220px]
-    sm:max-w-[280px]
-    md:absolute
-    md:top-[11vh]
-    md:left-[8vw]
-    md:max-w-[520px]
-    mb-6
-    sm:mb-8
-    md:mb-0
-    opacity-100
-  "
-        >
+        <div className="mobile-fade max-w-[300px] sm:max-w-[360px] mb-8">
           <p
-  className="
-    reveal-para
-    text-left
-    text-[13px]
-    sm:text-[16px]
-    md:text-[40px]
-    leading-[1.45]
-    md:leading-[1.2]
-    tracking-[-0.015em]
-    md:tracking-[-0.03em]
-    text-white
-    font-light
-    opacity-100
-  "
->
+            className="
+              text-left
+              text-[14px]
+              sm:text-[16px]
+              leading-[1.45]
+              tracking-[-0.015em]
+              text-white
+              font-light
+            "
+          >
             embrace softness,
             <br />
             trust your aura and feel
@@ -208,65 +154,101 @@ export const TextRevealSection = () => {
           </p>
         </div>
 
-        {/* MAIN TYPOGRAPHY */}
+        <div className="mobile-fade">
+          <h2
+            className="
+              max-w-[280px]
+              sm:max-w-[340px]
+              text-left
+              text-[clamp(24px,8.6vw,38px)]
+              leading-[0.95]
+              tracking-[-0.05em]
+              font-extralight
+              text-[#FFFDFB]
+            "
+          >
+            {lines.map((line, lineIdx) => (
+              <div key={lineIdx} className="block">
+                {line}
+              </div>
+            ))}
+          </h2>
+        </div>
+      </div>
+
+      {/* DESKTOP */}
+      <div className="relative z-10 hidden md:block h-screen w-full">
+        {/* LEFT PARAGRAPH */}
         <div
           className="
-            relative
-            z-10
-            w-full
-            md:pl-[42vw]
-            md:pr-[4vw]
-            md:pt-[30vh]
+            absolute
+            top-[12vh]
+            left-[5.5vw]
+            z-20
+            max-w-[420px]
+            lg:max-w-[500px]
           "
         >
-          {/* MOBILE / TABLET */}
-          <div className="mobile-fade block md:hidden">
-            <h2
-              className="
-                max-w-[260px]
-                sm:max-w-[320px]
-                text-left
-                text-[clamp(24px,8.6vw,38px)]
-                leading-[0.95]
-                tracking-[-0.05em]
-                font-extralight
-                text-[#FFFDFB]
-              "
-            >
-              {lines.map((line, lineIdx) => (
-                <div key={lineIdx} className="block">
-                  {line}
-                </div>
-              ))}
-            </h2>
-          </div>
+          <p
+            className="
+              reveal-para
+              text-left
+              text-[30px]
+              lg:text-[38px]
+              leading-[1.18]
+              tracking-[-0.03em]
+              text-white
+              font-light
+            "
+          >
+            embrace softness,
+            <br />
+            trust your aura and feel
+            <br />
+            elevated through modern
+            <br />
+            beauty rituals.
+          </p>
+        </div>
 
-          {/* DESKTOP */}
-          <div className="hidden md:block">
-            <h2
-              className="
-                text-[clamp(95px,11vw,150px)]
-                leading-[0.86]
-                tracking-[-0.08em]
-                font-extralight
-                text-[#FFFDFB]
-                whitespace-nowrap
-              "
-            >
-              {lines.map((line, lineIdx) => (
-                <div key={lineIdx} className="block">
-                  {line.split("").map((char, charIdx) => (
-                    <span
-                      key={charIdx}
-                      className="compress-char inline-block will-change-transform"
-                    >
-                      {char === " " ? "\u00A0" : char}
-                    </span>
-                  ))}
-                </div>
-              ))}
-            </h2>
-          </div>
+        {/* RIGHT TYPOGRAPHY */}
+        <div
+          className="
+    absolute
+    right-[2.8vw]
+    bottom-[6vh]
+    z-10
+    flex
+    justify-end
+  "
+        >
+        <h2
+  className="
+    text-right
+    text-[clamp(72px,8.4vw,128px)]
+    leading-[0.82]
+    tracking-[-0.075em]
+    font-extralight
+    text-[#FFFDFB]
+    max-w-[920px]
+  "
+>
+            {lines.map((line, lineIdx) => (
+             <div
+  key={lineIdx}
+  className="block whitespace-nowrap w-full text-right"
+>
+                {line.split("").map((char, charIdx) => (
+                  <span
+                    key={charIdx}
+                    className="compress-char inline-block will-change-transform"
+                  >
+                    {char === " " ? "\u00A0" : char}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </h2>
         </div>
       </div>
     </section>

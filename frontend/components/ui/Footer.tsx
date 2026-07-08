@@ -1,30 +1,30 @@
-     "use client";
+"use client";
 
-     import Link from "next/link";
-     import Image from "next/image";
+import Link from "next/link";
+import Image from "next/image";
 
-     import {
-          Mail,
-          Phone,
-     } from "lucide-react";
+import {
+     Mail,
+     Phone,
+} from "lucide-react";
 
-     import {
-          FaInstagram,
-          FaPinterestP,
-     } from "react-icons/fa";
+import {
+     FaInstagram,
+     FaPinterestP,
+} from "react-icons/fa";
 
-     import { FaXTwitter } from "react-icons/fa6";
+import { FaXTwitter } from "react-icons/fa6";
 
-     export function Footer() {
-          return (
-               <footer className="bg-[#F8F1EB]">
+export function Footer() {
+     return (
+          <footer className="bg-[#F8F1EB]">
 
-                    {/* ================= CTA ================= */}
+               {/* ================= CTA ================= */}
 
-                    <section className="px-6 md:px-12 lg:px-20">
+               <section className="px-6 md:px-12 lg:px-20">
 
-                         <div
-                              className="
+                    <div
+                         className="
      footer-cta
      max-w-[1700px]
      mx-auto
@@ -40,21 +40,21 @@
      text-center
      shadow-[0_30px_80px_rgba(45,33,29,0.04)]
      "
-                         >
+                    >
 
-                              <span
-                                   className="
+                         <span
+                              className="
                text-[10px]
                uppercase
                tracking-[0.4em]
                text-[#A17F72]
                "
-                              >
-                                   ALQORA BEAUTY
-                              </span>
+                         >
+                              ALQORA BEAUTY
+                         </span>
 
-                              <h2
-                                   className="
+                         <h2
+                              className="
      mt-6
      font-[family:var(--font-cormorant)]
      text-[38px]
@@ -66,14 +66,14 @@
      md:tracking-[-0.06em]
      text-[#2D211D]
      "
-                              >
-                                   The Art Of
-                                   <br />
-                                   Modern Beauty
-                              </h2>
+                         >
+                              The Art Of
+                              <br />
+                              Modern Beauty
+                         </h2>
 
-                              <p
-                                   className="
+                         <p
+                              className="
      mt-5
      max-w-[700px]
      mx-auto
@@ -84,15 +84,15 @@
      leading-[1.8]
      md:leading-[2]
      "
-                              >
-                                   Explore curated beauty collections,
-                                   editorial inspiration and luxury
-                                   rituals crafted for the Alqora universe.
-                              </p>
+                         >
+                              Explore curated beauty collections,
+                              editorial inspiration and luxury
+                              rituals crafted for the Alqora universe.
+                         </p>
 
-                              <Link
-                                   href="/shop"
-                                   className="
+                         <Link
+                              href="/shop"
+                              className="
                inline-flex
                items-center
                justify-center
@@ -109,27 +109,27 @@
                duration-500
                hover:scale-[1.03]
                "
-                              >
-                                   Explore Collection
-                              </Link>
+                         >
+                              Explore Collection
+                         </Link>
 
-                         </div>
+                    </div>
 
-                    </section>
+               </section>
 
-                    {/* ================= FOOTER ================= */}
+               {/* ================= FOOTER ================= */}
 
-                    <section
-                         className="
+               <section
+                    className="
                relative
                overflow-hidden
                mt-12
                bg-[#0D0504]
           "
-                    >
+               >
 
-                         <div
-                              className="
+                    <div
+                         className="
                relative
                z-10
                max-w-[1700px]
@@ -137,15 +137,18 @@
                px-6
                md:px-12
                lg:px-20
-               pt-16
-               pb-72
+               pt-12
+pb-28
+sm:pb-32
+md:pt-16
+md:pb-72
                "
-                         >
+                    >
 
-                              {/* TOP */}
+                         {/* TOP */}
 
-                              <div
-                                   className="
+                         <div
+                              className="
      footer-columns
      grid
      grid-cols-2
@@ -154,134 +157,134 @@
      gap-x-8
      gap-y-10
      "
-                              >
+                         >
 
-                                   {/* BRAND */}
+                              {/* BRAND */}
 
-                                   <div className="footer-column col-span-2 xl:col-span-1">
+                              <div className="footer-column col-span-2 xl:col-span-1">
 
-                                        <Link
-                                             href="/"
-                                             className="
+                                   <Link
+                                        href="/"
+                                        className="
      inline-block
      transition-transform
      duration-500
      hover:scale-[1.03]
      "
-                                        >
+                                   >
 
-                                             <div
-                                                  className="
+                                        <div
+                                             className="
           relative
           w-[170px]
           h-[55px]
      "
-                                             >
+                                        >
 
-                                                  <Image
-                                                       src="/logo.png"
-                                                       alt="ALQORA"
-                                                       fill
-                                                       sizes="170px"
-                                                       className="object-contain brightness-0 invert"
-                                                  />
+                                             <Image
+                                                  src="/logo.png"
+                                                  alt="ALQORA"
+                                                  fill
+                                                  sizes="170px"
+                                                  className="object-contain brightness-0 invert"
+                                             />
 
-                                             </div>
+                                        </div>
 
-                                        </Link>
+                                   </Link>
 
-                                        <div className="mt-8 space-y-4">
+                                   <div className="mt-8 space-y-4">
 
-                                             <div
-                                                  className="
+                                        <div
+                                             className="
                          flex
                          items-center
                          gap-3
                          text-[#C7AAA0]
                     "
-                                             >
+                                        >
 
-                                                  <Mail size={16} />
+                                             <Mail size={16} />
 
-                                                  <span>
-                                                       hello@alqora.com
-                                                  </span>
+                                             <span>
+                                                  hello@alqora.com
+                                             </span>
 
-                                             </div>
+                                        </div>
 
-                                             <div
-                                                  className="
+                                        <div
+                                             className="
                          flex
                          items-center
                          gap-3
                          text-[#C7AAA0]
                     "
-                                             >
+                                        >
 
-                                                  <Phone size={16} />
+                                             <Phone size={16} />
 
-                                                  <span>
-                                                       +91 98765 43210
-                                                  </span>
-
-                                             </div>
+                                             <span>
+                                                  +91 98765 43210
+                                             </span>
 
                                         </div>
 
                                    </div>
 
+                              </div>
 
-                                   {/* SHOP */}
-                                   <div className="footer-column">
 
-                                        <h4
-                                             className="
+                              {/* SHOP */}
+                              <div className="footer-column">
+
+                                   <h4
+                                        className="
                     text-[#D8A88F]
                     uppercase
                     tracking-[0.3em]
                     text-xs
                     "
-                                        >
-                                             Shop
-                                        </h4>
+                                   >
+                                        Shop
+                                   </h4>
 
-                                        <div
-                                             className="
+                                   <div
+                                        className="
                     mt-6
                     flex
                     flex-col
                     gap-3
                     text-[#E7D7D1]
                     "
-                                        >
+                                   >
 
-                                             <Link href="/shop">Products</Link>
-                                             <Link href="/shop">New Arrivals</Link>
-                                             <Link href="/wishlist">Wishlist</Link>
-                                             <Link href="/cart">Cart</Link>
-
-                                        </div>
+                                        <Link href="/shop">Products</Link>
+                                        <Link href="/shop">New Arrivals</Link>
+                                        <Link href="/wishlist">Wishlist</Link>
+                                        <Link href="/cart">Cart</Link>
 
                                    </div>
 
-                                   {/* COMPANY */}
+                              </div>
 
-                                   {/* COMPANY */}
-                                   <div className="footer-column">
+                              {/* COMPANY */}
 
-                                        <h4
-                                             className="
+                              {/* COMPANY */}
+                              <div className="footer-column">
+
+                                   <h4
+                                        className="
                     text-[#D8A88F]
                     uppercase
                     tracking-[0.3em]
                     text-xs
                     "
-                                        >
-                                             Company
-                                        </h4>
+                                   >
+                                        Company
+                                   </h4>
 
-                                        <div
-                                             className="
+                                   <div
+                                        className="
      mt-4
      md:mt-6
      flex
@@ -292,87 +295,87 @@
      text-[14px]
      md:text-base
      "
-                                        >
+                                   >
 
-                                             <Link href="/">About Us</Link>
-                                             <Link href="/">Editorial</Link>
-                                             <Link href="/">Collections</Link>
-                                             <Link href="/">Journal</Link>
-
-                                        </div>
+                                        <Link href="/">About Us</Link>
+                                        <Link href="/">Editorial</Link>
+                                        <Link href="/">Collections</Link>
+                                        <Link href="/">Journal</Link>
 
                                    </div>
 
-                                   {/* SUPPORT */}
+                              </div>
 
-                                   {/* COMPANY */}
-                                   <div className="footer-column">
+                              {/* SUPPORT */}
 
-                                        <h4
-                                             className="
+                              {/* COMPANY */}
+                              <div className="footer-column">
+
+                                   <h4
+                                        className="
                     text-[#D8A88F]
                     uppercase
                     tracking-[0.3em]
                     text-xs
                     "
-                                        >
-                                             Support
-                                        </h4>
+                                   >
+                                        Support
+                                   </h4>
 
-                                        <div
-                                             className="
+                                   <div
+                                        className="
                     mt-6
                     flex
                     flex-col
                     gap-3
                     text-[#E7D7D1]
                     "
-                                        >
+                                   >
 
-                                             <Link href="/">FAQ</Link>
-                                             <Link href="/">Contact</Link>
-                                             <Link href="/">Privacy</Link>
-                                             <Link href="/">Terms</Link>
-
-                                        </div>
+                                        <Link href="/">FAQ</Link>
+                                        <Link href="/">Contact</Link>
+                                        <Link href="/">Privacy</Link>
+                                        <Link href="/">Terms</Link>
 
                                    </div>
 
-                                   {/* FOLLOW */}
+                              </div>
 
-                                   {/* COMPANY */}
-                                   <div className="footer-column">
+                              {/* FOLLOW */}
 
-                                        <h4
-                                             className="
+                              {/* COMPANY */}
+                              <div className="footer-column">
+
+                                   <h4
+                                        className="
                     text-[#D8A88F]
                     uppercase
                     tracking-[0.3em]
                     text-xs
                     "
-                                        >
-                                             Follow Us
-                                        </h4>
+                                   >
+                                        Follow Us
+                                   </h4>
 
-                                        <div
-                                             className="
+                                   <div
+                                        className="
      mt-4
      md:mt-6
      flex
      flex-wrap
      gap-3
      "
-                                        >
+                                   >
 
-                                             {[
-                                                  <FaInstagram />,
-                                                  <FaPinterestP />,
-                                                  <FaXTwitter />,
-                                             ].map((icon, index) => (
+                                        {[
+                                             <FaInstagram />,
+                                             <FaPinterestP />,
+                                             <FaXTwitter />,
+                                        ].map((icon, index) => (
 
-                                                  <button
-                                                       key={index}
-                                                       className="
+                                             <button
+                                                  key={index}
+                                                  className="
                          h-11
                          w-11
                          rounded-full
@@ -388,22 +391,22 @@
                          hover:border-[#7A2E3A]
                          hover:text-white
                          "
-                                                  >
-                                                       {icon}
-                                                  </button>
+                                             >
+                                                  {icon}
+                                             </button>
 
-                                             ))}
-
-                                        </div>
+                                        ))}
 
                                    </div>
 
                               </div>
 
-                              {/* COPYRIGHT */}
+                         </div>
 
-                              <div
-                                   className="
+                         {/* COPYRIGHT */}
+
+                         <div
+                              className="
      mt-16
      md:mt-24
      flex
@@ -416,50 +419,50 @@
      text-center
      md:text-left
      "
-                              >
+                         >
 
-                                   <p>
-                                        Privacy & Policy
-                                   </p>
+                              <p>
+                                   Privacy & Policy
+                              </p>
 
-                                   <p>
-                                        © 2026 ALQORA. All Rights Reserved
-                                   </p>
+                              <p>
+                                   © 2026 ALQORA. All Rights Reserved
+                              </p>
 
-                              </div>
+                         </div>
 
-                              {/* DIVIDER */}
+                         {/* DIVIDER */}
 
-                              <div
-                                   className="
+                         <div
+                              className="
                mt-6
                h-px
                bg-[#4A2821]
                "
-                              />
+                         />
 
-                         </div>
+                    </div>
 
-                         {/* HUGE TYPOGRAPHY */}
+                    {/* HUGE TYPOGRAPHY */}
 
-                         <div
-                              className="
+                    <div
+                         className="
      footer-brand-wrapper
      absolute
      left-[-10px]
      md:left-[-50px]
-     bottom-[-40px]
+     bottom-[-20px]
      md:bottom-[-150px]
      w-full
      pointer-events-none
      "
-                         >
+                    >
 
-                              <h2
-                                   className="
+                         <h2
+                              className="
      whitespace-nowrap
      font-[family:var(--font-cormorant)]
-     text-[150px]
+     text-[90px]
      sm:text-[200px]
      md:text-[450px]
      leading-none
@@ -467,12 +470,12 @@
      text-[#7A2E3A]/12
      select-none
      "
-                              >  ALQORA
-                              </h2>
+                         >  ALQORA
+                         </h2>
 
-                         </div>
-                    </section>
+                    </div>
+               </section>
 
-               </footer>
-          );
-     }
+          </footer>
+     );
+}

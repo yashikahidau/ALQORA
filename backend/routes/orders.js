@@ -351,7 +351,7 @@ router.post("/", authMiddleware, async (req, res) => {
           razorpayPaymentId: createdOrder.razorpayPaymentId,
         });
 
-        await sendEmail(
+         sendEmail(
           user.email,
           "ALQORA • Order Confirmation",
           html
